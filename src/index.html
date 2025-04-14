@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>English to Chinese Translator</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Word Information</h1>
+  <div>
+    <label for="wordInput">Word:</label>
+    <input type="text" id="wordInput" name="wordInput" />
+  </div>
+  <button id="lookupButton">Lookup</button>
+
+  <div id="wordDetails" style="margin-top: 20px;">
+  </div>
+
+  <script>
+    const lookupButton = document.getElementById("lookupButton");
+    const wordInput = document.getElementById("wordInput");
+    const wordDetailsDiv = document.getElementById("wordDetails");
+
+    lookupButton.addEventListener("click", async () => {
+      wordDetailsDiv.innerHTML = "";
+      const word = wordInput.value;
+      const response = await fetch(`/translate?text=${encodeURIComponent(word)}`);
+      const data = await response.json();
+        const keyToChinese = {
+            'word': '单词',
+                'ukphone': '英音',
+                'usphone': '美音',
+                'translations': '翻译',
+                'word_forms': '词形',
+                'etymologies': '词源',
+                'eg_sentences': '例句'
+        };
+
+        const orderedKeys = ["word", "ukphone", "usphone", "translations", "word_forms", "etymologies", "eg_sentences"];
+
+        function formatTextWithLineBreaks(text) {
+            if (typeof text !== 'string') {
+                return text;
+            }
+            return text.replace(/\n/g, "<br>");
+        }
+        
+        function wrapWithParentheses(text) {
+            if(text){
+                return `[${text}]`;
+            }
+            return text;
+        }
+
+        orderedKeys.forEach(key => {
+            if(data.hasOwnProperty(key)){
+                const detailDiv = document.createElement("div");
+                detailDiv.style.marginBottom = "10px";
+                const keyStrong = document.createElement('strong')
+                keyStrong.textContent = `${keyToChinese[key]}: `;
+                detailDiv.appendChild(keyStrong);
+
+                if (Array.isArray(data[key])) {
+                    const ul = document.createElement('ul');
+                    data[key].forEach(item => {
+                        const li = document.createElement("li");
+                        li.innerHTML = formatTextWithLineBreaks(item);
+                        ul.appendChild(li);
+                    });
+                    detailDiv.appendChild(ul);
+                } else {
+                    let content = formatTextWithLineBreaks(data[key]);
+                    if (key === "usphone" || key === "ukphone") {
+                        content = wrapWithParentheses(content);
+                    }
+                    detailDiv.innerHTML += content;
+                }
+                wordDetailsDiv.appendChild(detailDiv);
+            }
+        })
+      }
+    );
+  </script>
+</body>
+</html>
