@@ -8,6 +8,10 @@ app = Flask(__name__)
 def index():
     return send_file('src/index.html')
 
+@app.route("/test")
+def test():
+    return "Hello World"
+    
 @app.route("/translate")
 def translate():    
     word = request.args.get('text', '')
