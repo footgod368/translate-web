@@ -96,8 +96,60 @@ function wrapWithParentheses(text) {
 const clearInputBtn = document.getElementById('clearInput');
 const wordInput = document.getElementById('wordInput');
 
-wordInput.addEventListener('input', () => {
-    clearInputBtn.style.display = wordInput.value ? 'block' : 'none';
+const searchWrapper = document.createElement('div');
+searchWrapper.style.position = 'relative';
+wordInput.parentNode.insertBefore(searchWrapper, wordInput);
+searchWrapper.appendChild(wordInput.parentNode.removeChild(wordInput));
+
+const suggestionsDiv = document.createElement('div');
+suggestionsDiv.style.display = 'none';
+suggestionsDiv.style.position = 'absolute';
+suggestionsDiv.style.width = '100%';
+suggestionsDiv.style.background = 'white';
+suggestionsDiv.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+suggestionsDiv.style.zIndex = '1000';
+searchWrapper.appendChild(suggestionsDiv);
+
+let timeoutId;
+wordInput.addEventListener('input', async () => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(async () => {
+        const prefix = wordInput.value.trim();
+        if (prefix.length < 2) {
+            suggestionsDiv.style.display = 'none';
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/autocomplete?prefix=${encodeURIComponent(prefix)}`);
+            const suggestions = await response.json();
+            
+            suggestionsDiv.innerHTML = suggestions.map(word => `
+                <div style="padding: 8px; cursor: pointer; border-bottom: 1px solid #eee; 
+                    &:hover { background: #f8f9fa; }">
+                    ${word}
+                </div>
+            `).join('');
+            
+            suggestionsDiv.style.display = suggestions.length ? 'block' : 'none';
+            
+            suggestionsDiv.querySelectorAll('div').forEach(div => {
+                div.addEventListener('click', () => {
+                    wordInput.value = div.textContent.trim(); 
+                    suggestionsDiv.style.display = 'none';
+                    lookupButton.click();
+                });
+            });
+        } catch (error) {
+            console.error('Autocomplete error:', error);
+        }
+    }, 300);
+});
+
+document.addEventListener('click', (e) => {
+    if (!searchWrapper.contains(e.target)) {
+        suggestionsDiv.style.display = 'none';
+    }
 });
 
 clearInputBtn.addEventListener('click', () => {

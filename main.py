@@ -18,6 +18,13 @@ def translate():
     word_instance = Word(word)
     return jsonify(word_instance.result())
 
+@app.route('/autocomplete')
+def autocomplete():
+    prefix = request.args.get('prefix', '').lower()
+    # suggestions = ['apple', 'banana', 'cherry', 'date', 'elderberry']
+    suggestions = []
+    return jsonify(suggestions)
+
 def main():
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
 
