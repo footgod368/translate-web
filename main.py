@@ -52,9 +52,11 @@ def autocomplete():
 
 @app.route("/ducksay")
 def ducksay():
+    count = get_today_query_count()
+    message = f"今天小鸭学习了 {count} 个单词" if count > 0 else "嘎嘎"
     return jsonify(
         {
-            "message": f"小鸭今天学习了 {get_today_query_count()} 个单词",
+            "message": message,
         }
     )
 

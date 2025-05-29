@@ -4,10 +4,12 @@ from contextlib import closing
 from flask import current_app
 import datetime
 
+DATABASE_FILE = 'query_history.db'
+
 def init_db():
-    if os.path.exists('query_history.db'):
+    if os.path.exists(DATABASE_FILE):
         return
-    with closing(sqlite3.connect('query_history.db')) as conn:
+    with closing(sqlite3.connect(DATABASE_FILE)) as conn:
         c = conn.cursor()
         c.execute('''
             CREATE TABLE IF NOT EXISTS query_log (
@@ -21,7 +23,7 @@ def init_db():
         conn.commit()
 
 def log_query(word, ip_address=None, user_agent=None):
-    with closing(sqlite3.connect('query_history.db')) as conn:
+    with closing(sqlite3.connect(DATABASE_FILE)) as conn:
         c = conn.cursor()
         c.execute('''
             INSERT INTO query_log (word, ip_address, user_agent)
@@ -30,7 +32,7 @@ def log_query(word, ip_address=None, user_agent=None):
         conn.commit()
         
 def get_today_query_count():
-    with closing(sqlite3.connect('query_history.db')) as conn:
+    with closing(sqlite3.connect(DATABASE_FILE)) as conn:
         c = conn.cursor()
         c.execute('''
             SELECT COUNT(*) FROM query_log
