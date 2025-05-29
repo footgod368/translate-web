@@ -22,7 +22,7 @@ def load_words():
 
 app.config["all_eng_words"] = load_words()  # 在app.run前加载
 app.config["enable_autocomplete"] = True
-app.config["database_file"] = app.root_path + "/query_history.db"
+app.config["database_file"] = app.root_path + "/db/query_history.db"
 init_db(app.config["database_file"])
 
 
