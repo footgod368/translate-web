@@ -43,7 +43,7 @@ def get_today_query_count(DATABASE_FILE):
         c.execute(
             """
             SELECT COUNT(*) FROM query_log
-            WHERE DATE(timestamp) = DATE('now')
+            WHERE DATE(timestamp, '+8 hours') = DATE('now', '+8 hours')
         """
         )
         return c.fetchone()[0]
