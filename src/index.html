@@ -1,44 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>English to Chinese Translator</title>
   <style>
     body {
-        font-family: sans-serif;
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 0 20px;
+      font-family: sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 0 20px;
     }
+
     #wordDetails div {
-        margin-bottom: 15px;
-        padding: 12px;
-        background: #f8f9fa;
-        border-radius: 4px;
+      margin-bottom: 15px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 4px;
     }
+
     #wordDetails ul {
-        margin: 8px 0;
-        padding-left: 20px;
+      margin: 8px 0;
+      padding-left: 20px;
     }
+
     #wordDetails li {
-        margin-bottom: 8px;
-        padding: 6px;
-        background: white;
-        border-left: 3px solid #007bff;
+      margin-bottom: 8px;
+      padding: 6px;
+      background: white;
+      border-left: 3px solid #007bff;
     }
+
     strong {
-        color: #2c3e50;
+      color: #2c3e50;
     }
-</style>
+  </style>
 </head>
 
 <body>
   <h1>Word Information</h1>
   <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
     <label for="wordInput" style="font-size: 16px; color: #333;">单词：</label>
-    <input type="text" id="wordInput" name="wordInput" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; flex-grow: 1;"/>
-    <button id="lookupButton" style="padding: 8px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">查询</button>
+    <input type="text" id="wordInput" name="wordInput"
+      style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; flex-grow: 1;" />
+    <button id="lookupButton"
+      style="padding: 8px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">查询</button>
   </div>
 
   <div id="wordDetails" style="margin-top: 20px;">
@@ -54,110 +61,98 @@
       const word = wordInput.value;
       const response = await fetch(`/translate?text=${encodeURIComponent(word)}`);
       const data = await response.json();
-        const keyToChinese = {
-            'word': '单词',
-                'ukphone': '英音',
-                'usphone': '美音',
-                'translations': '翻译',
-                'word_forms': '词形',
-                'etymologies': '词源',
-                'eg_sentences': '例句'
-        };
+      const keyToChinese = {
+        'word': '单词',
+        'ukphone': '英音',
+        'usphone': '美音',
+        'translations': '翻译',
+        'word_forms': '词形',
+        'etymologies': '词源',
+        'eg_sentences': '例句'
+      };
 
-        const orderedKeys = ["word", "ukphone", "usphone", "translations", "word_forms", "etymologies", "eg_sentences"];
+      const orderedKeys = ["word", "ukphone", "usphone", "translations", "word_forms", "etymologies", "eg_sentences"];
 
-        function formatTextWithLineBreaks(text) {
-            if (typeof text !== 'string') {
-                return text;
-            }
-            return text.replace(/\n/g, "<br>");
+      function formatTextWithLineBreaks(text) {
+        if (typeof text !== 'string') {
+          return text;
         }
-        
-        function wrapWithParentheses(text) {
-            if(text){
-                return `[${text}]`;
-            }
-            return text;
-        }
-
-        orderedKeys.forEach(key => {
-            if(data.hasOwnProperty(key)){
-                const detailDiv = document.createElement("div");
-                detailDiv.style.marginBottom = "10px";
-                const keyStrong = document.createElement('strong')
-                keyStrong.textContent = `${keyToChinese[key]}: `;
-                detailDiv.appendChild(keyStrong);
-    
-                if (key === 'eg_sentences') {
-                    const ul = document.createElement('ul');
-                    data[key].forEach(item => {
-                        const li = document.createElement("li");
-                        
-                        // 处理例句
-                        const engSpan = document.createElement('span');
-                        engSpan.innerHTML = formatTextWithLineBreaks(item.eng) + '<br>';
-                        engSpan.style.fontStyle = 'italic';
-                        
-                        const chnSpan = document.createElement('span');
-                        chnSpan.innerHTML = formatTextWithLineBreaks(item.translation);
-                        chnSpan.style.color = '#666';
-                        
-                        li.appendChild(engSpan);
-                        chnSpan.style.marginTop = '4px';
-                        li.appendChild(chnSpan);
-                        ul.appendChild(li);
-                    });
-                    detailDiv.appendChild(ul);
-                } 
-                else if (key === 'etymologies') {
-                    const ul = document.createElement('ul');
-                    data[key].forEach(item => {
-                        // 过滤空值条目
-                        if (!item.value && !item.desc) return;
-                        
-                        const li = document.createElement("li");
-                        let hasContent = false;
-                        
-                        if (item.value) {
-                            const valueDiv = document.createElement('div');
-                            valueDiv.innerHTML = formatTextWithLineBreaks(item.value);
-                            valueDiv.style.fontWeight = '600';
-                            valueDiv.style.color = '#2d3748';
-                            li.appendChild(valueDiv);
-                            hasContent = true;
-                        }
-                        
-                        if (item.desc) {
-                            const descDiv = document.createElement('div'); 
-                            descDiv.innerHTML = formatTextWithLineBreaks(item.desc);
-                            descDiv.style.color = '#718096';
-                            descDiv.style.marginTop = item.value ? '4px' : '0';
-                            li.appendChild(descDiv);
-                            hasContent = true;
-                        }
-                        
-                        if (hasContent) {
-                            ul.appendChild(li);
-                        }
-                    });
-                    detailDiv.appendChild(ul);
-                }
-                else {
-                    // 处理基础字段
-                    let content = data[key];
-                    if (typeof content === 'string') {
-                        content = formatTextWithLineBreaks(content);
-                    }
-                    if (key === "usphone" || key === "ukphone") {
-                        content = wrapWithParentheses(content);
-                    }
-                    detailDiv.innerHTML += content;
-                }
-                wordDetailsDiv.appendChild(detailDiv);
-            }
-        })
+        return text.replace(/\n/g, "<br>");
       }
+
+      function wrapWithParentheses(text) {
+        if (text) {
+          return `[${text}]`;
+        }
+        return text;
+      }
+
+      orderedKeys.forEach(key => {
+        if (data.hasOwnProperty(key)) {
+          const detailDiv = document.createElement("div");
+          detailDiv.style.marginBottom = "10px";
+          const keyStrong = document.createElement('strong')
+          keyStrong.textContent = `${keyToChinese[key]}: `;
+          detailDiv.appendChild(keyStrong);
+
+          if (key === 'eg_sentences') {
+            const ul = document.createElement('ul');
+            data[key].forEach(item => {
+              const li = document.createElement("li");
+
+              // 处理例句
+              const engSpan = document.createElement('span');
+              engSpan.innerHTML = formatTextWithLineBreaks(item.eng) + '<br>';
+              engSpan.style.fontStyle = 'italic';
+
+              const chnSpan = document.createElement('span');
+              chnSpan.innerHTML = formatTextWithLineBreaks(item.translation);
+              chnSpan.style.color = '#666';
+
+              li.appendChild(engSpan);
+              chnSpan.style.marginTop = '4px';
+              li.appendChild(chnSpan);
+              ul.appendChild(li);
+            });
+            detailDiv.appendChild(ul);
+          }
+          else if (key === 'etymologies') {
+            const ul = document.createElement('ul');
+            data[key].forEach(item => {
+              if (!item.value && !item.desc) return;
+
+              const li = document.createElement("li");
+              let content = '';
+
+              if (item.value) {
+                content += `<div style="font-weight:600;color:#2d3748;">${formatTextWithLineBreaks(item.value)}</div>`;
+              }
+              if (item.desc) {
+                content += `${formatTextWithLineBreaks(item.desc)}`;
+              }
+
+              li.innerHTML = content;
+              ul.appendChild(li);
+            });
+            detailDiv.appendChild(ul);
+          }
+          else {
+            // 处理基础字段
+            let content = data[key];
+            if (typeof content === 'string') {
+              content = formatTextWithLineBreaks(content);
+            }
+            if (key === "usphone" || key === "ukphone") {
+              content = wrapWithParentheses(content);
+            }
+            detailDiv.innerHTML += content;
+          }
+          wordDetailsDiv.appendChild(detailDiv);
+        }
+      })
+    }
     );
   </script>
 </body>
+
 </html>

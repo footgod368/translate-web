@@ -133,7 +133,7 @@ class Word:
 
     def _list_eg_sentences(self):
         return [
-            {'eng': item['sentence-eng'].replace('<b>', '*').replace('</b>', '*'), 'translation': item['sentence-translation']}
+            {'eng': item['sentence-eng'], 'translation': item['sentence-translation']}
             for item in self.eg_sentences
         ]
 
