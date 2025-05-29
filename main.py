@@ -10,7 +10,7 @@ app = Flask(__name__, static_folder="static")
 
 def load_words():
     try:
-        with open("static/words", "r") as file:
+        with open(app.root_path +"/static/words", "r") as file:
             words = [line.strip().lower() for line in file if line.strip()]
             app.logger.info(f"成功加载 {len(words)} 个单词")
             return words  # 添加返回值
