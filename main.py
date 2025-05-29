@@ -2,11 +2,11 @@ import os
 from flask import Flask, send_file, jsonify, request
 from src.backend import Word
 
-app = Flask(__name__) 
+app = Flask(__name__, static_folder='static') 
 
 @app.route("/") 
 def index():
-    return send_file('src/index.html')
+    return send_file('static/index.html')
 
 @app.route("/test")
 def test():
