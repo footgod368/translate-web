@@ -93,6 +93,17 @@ function wrapWithParentheses(text) {
 }
 
 // 在DOMContentLoaded事件监听器中添加：
+document.getElementById('logoIcon').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const bubble = document.getElementById('chatBubble');
+    bubble.style.display = bubble.style.display === 'none' ? 'block' : 'none';
+});
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('#logoIcon')) {
+        document.getElementById('chatBubble').style.display = 'none';
+    }
+});
 const clearInputBtn = document.getElementById('clearInput');
 const wordInput = document.getElementById('wordInput');
 

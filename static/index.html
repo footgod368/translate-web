@@ -10,10 +10,18 @@
 </head>
 
 <body>
-  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
-    <img src="/static/favicon.avif" alt="Logo" style="width: 40px; height: 40px;">
+  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; position: relative;">
+    <img src="/static/favicon.avif" alt="Logo" 
+         style="width: 40px; height: 40px; cursor: pointer;"
+         id="logoIcon">
     <h1>Word Information</h1>
-  </div>
+    <div id="chatBubble" 
+         style="display: none; position: absolute; left: 50px; top: -20px; 
+                background: #fff; padding: 8px 12px; border-radius: 12px; 
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #ddd;">
+        嘎嘎
+    </div>
+</div>
   <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
     <label for="wordInput" style="font-size: 18px; color: #333;">单词：</label>
     <div style="position: relative; flex-grow: 1; margin-right: 10px;">
