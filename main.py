@@ -1,6 +1,6 @@
 import os
 from flask import Flask, send_file, jsonify, request
-from src.backend import Word
+from src.translate import Word
 
 app = Flask(__name__, static_folder='static') 
 
