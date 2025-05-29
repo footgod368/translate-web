@@ -87,18 +87,17 @@
                 const keyStrong = document.createElement('strong')
                 keyStrong.textContent = `${keyToChinese[key]}: `;
                 detailDiv.appendChild(keyStrong);
-
-                if (Array.isArray(data[key])) {
+    
+                if (key === 'eg_sentences') {
                     const ul = document.createElement('ul');
                     data[key].forEach(item => {
                         const li = document.createElement("li");
                         
-                        // 英文句子部分
+                        // 处理例句
                         const engSpan = document.createElement('span');
                         engSpan.innerHTML = formatTextWithLineBreaks(item.eng) + '<br>';
                         engSpan.style.fontStyle = 'italic';
                         
-                        // 中文翻译部分
                         const chnSpan = document.createElement('span');
                         chnSpan.innerHTML = formatTextWithLineBreaks(item.translation);
                         chnSpan.style.color = '#666';
@@ -109,8 +108,46 @@
                         ul.appendChild(li);
                     });
                     detailDiv.appendChild(ul);
-                } else {
-                    let content = formatTextWithLineBreaks(data[key]);
+                } 
+                else if (key === 'etymologies') {
+                    const ul = document.createElement('ul');
+                    data[key].forEach(item => {
+                        // 过滤空值条目
+                        if (!item.value && !item.desc) return;
+                        
+                        const li = document.createElement("li");
+                        let hasContent = false;
+                        
+                        if (item.value) {
+                            const valueDiv = document.createElement('div');
+                            valueDiv.innerHTML = formatTextWithLineBreaks(item.value);
+                            valueDiv.style.fontWeight = '600';
+                            valueDiv.style.color = '#2d3748';
+                            li.appendChild(valueDiv);
+                            hasContent = true;
+                        }
+                        
+                        if (item.desc) {
+                            const descDiv = document.createElement('div'); 
+                            descDiv.innerHTML = formatTextWithLineBreaks(item.desc);
+                            descDiv.style.color = '#718096';
+                            descDiv.style.marginTop = item.value ? '4px' : '0';
+                            li.appendChild(descDiv);
+                            hasContent = true;
+                        }
+                        
+                        if (hasContent) {
+                            ul.appendChild(li);
+                        }
+                    });
+                    detailDiv.appendChild(ul);
+                }
+                else {
+                    // 处理基础字段
+                    let content = data[key];
+                    if (typeof content === 'string') {
+                        content = formatTextWithLineBreaks(content);
+                    }
                     if (key === "usphone" || key === "ukphone") {
                         content = wrapWithParentheses(content);
                     }

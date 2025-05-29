@@ -77,7 +77,7 @@ class Word:
             "usphone": self.usphone,
             "translations": self._str_translations(),
             "word_forms": self._str_word_forms(),
-            "etymologies": self._str_etymologies(),
+            "etymologies": self._list_etymologies(),
             "eg_sentences": self._list_eg_sentences(),
         }
         Word.logger.info(f"Returning result for word: {result}")
@@ -113,6 +113,12 @@ class Word:
         return "\n" + "\n".join(
             [f"{i+1}. {item}" for i, item in enumerate(etymologies)]
         )
+        
+    def _list_etymologies(self):
+        return [
+            {'value': item['value'], 'desc': item['desc']}
+            for item in self.etymologies
+        ]
 
     def _str_eg_sentences(self):
         eg_sentences = [
