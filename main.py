@@ -22,7 +22,8 @@ def load_words():
 
 app.config["all_eng_words"] = load_words()  # 在app.run前加载
 app.config["enable_autocomplete"] = True
-init_db()
+app.config["database_file"] = app.root_path + "/query_history.db"
+init_db(app.config["database_file"])
 
 
 @app.route("/")
@@ -38,7 +39,7 @@ def test():
 @app.route("/translate")
 def translate():
     word = request.args.get("text", "")
-    log_query(word, request.remote_addr, request.user_agent.string)
+    log_query(app.config["database_file"],word, request.remote_addr, request.user_agent.string)
     word_instance = Word(word)
     return jsonify(word_instance.result())
 
@@ -52,7 +53,7 @@ def autocomplete():
 
 @app.route("/ducksay")
 def ducksay():
-    count = get_today_query_count()
+    count = get_today_query_count(app.config["database_file"])
     message = f"今天小鸭学习了 {count} 个单词" if count > 0 else "嘎嘎"
     return jsonify(
         {
