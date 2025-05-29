@@ -6,18 +6,40 @@
   <title>English to Chinese Translator</title>
   <style>
     body {
-      font-family: sans-serif;
+        font-family: sans-serif;
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 0 20px;
     }
-  </style>
+    #wordDetails div {
+        margin-bottom: 15px;
+        padding: 12px;
+        background: #f8f9fa;
+        border-radius: 4px;
+    }
+    #wordDetails ul {
+        margin: 8px 0;
+        padding-left: 20px;
+    }
+    #wordDetails li {
+        margin-bottom: 8px;
+        padding: 6px;
+        background: white;
+        border-left: 3px solid #007bff;
+    }
+    strong {
+        color: #2c3e50;
+    }
+</style>
 </head>
 
 <body>
   <h1>Word Information</h1>
-  <div>
-    <label for="wordInput">Word:</label>
-    <input type="text" id="wordInput" name="wordInput" />
+  <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+    <label for="wordInput" style="font-size: 16px; color: #333;">单词：</label>
+    <input type="text" id="wordInput" name="wordInput" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; flex-grow: 1;"/>
+    <button id="lookupButton" style="padding: 8px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">查询</button>
   </div>
-  <button id="lookupButton">Lookup</button>
 
   <div id="wordDetails" style="margin-top: 20px;">
   </div>
@@ -70,7 +92,20 @@
                     const ul = document.createElement('ul');
                     data[key].forEach(item => {
                         const li = document.createElement("li");
-                        li.innerHTML = formatTextWithLineBreaks(item);
+                        
+                        // 英文句子部分
+                        const engSpan = document.createElement('span');
+                        engSpan.innerHTML = formatTextWithLineBreaks(item.eng) + '<br>';
+                        engSpan.style.fontStyle = 'italic';
+                        
+                        // 中文翻译部分
+                        const chnSpan = document.createElement('span');
+                        chnSpan.innerHTML = formatTextWithLineBreaks(item.translation);
+                        chnSpan.style.color = '#666';
+                        
+                        li.appendChild(engSpan);
+                        chnSpan.style.marginTop = '4px';
+                        li.appendChild(chnSpan);
                         ul.appendChild(li);
                     });
                     detailDiv.appendChild(ul);

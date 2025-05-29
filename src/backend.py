@@ -78,7 +78,7 @@ class Word:
             "translations": self._str_translations(),
             "word_forms": self._str_word_forms(),
             "etymologies": self._str_etymologies(),
-            "eg_sentences": self._str_eg_sentences(),
+            "eg_sentences": self._list_eg_sentences(),
         }
         Word.logger.info(f"Returning result for word: {result}")
         return result
@@ -125,6 +125,11 @@ class Word:
             [f"{i+1}. {item}" for i, item in enumerate(eg_sentences)]
         )
 
+    def _list_eg_sentences(self):
+        return [
+            {'eng': item['sentence-eng'].replace('<b>', '*').replace('</b>', '*'), 'translation': item['sentence-translation']}
+            for item in self.eg_sentences
+        ]
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
