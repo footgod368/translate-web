@@ -1,6 +1,7 @@
 import os
 from flask import Flask, send_file, jsonify, request
 from src.translate import Word
+from src.auto_complete import auto_complete
 
 app = Flask(__name__, static_folder='static') 
 
@@ -21,8 +22,7 @@ def translate():
 @app.route('/autocomplete')
 def autocomplete():
     prefix = request.args.get('prefix', '').lower()
-    # suggestions = ['apple', 'banana', 'cherry', 'date', 'elderberry']
-    suggestions = []
+    suggestions = auto_complete(prefix)
     return jsonify(suggestions)
 
 def main():
