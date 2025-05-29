@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             content += `<div style="font-weight:600;color:#2d3748;">${formatTextWithLineBreaks(item.value)}</div>`;
                         }
                         if (item.desc) {
-                            content += `<div style="color:#718096;margin-top:2px;font-size:0.9em;">${formatTextWithLineBreaks(item.desc)}</div>`;
+                            content += formatTextWithLineBreaks(item.desc);
                         }
 
                         li.innerHTML = content;
@@ -91,3 +91,17 @@ function formatTextWithLineBreaks(text) {
 function wrapWithParentheses(text) {
     return text ? `[${text}]` : text;
 }
+
+// 在DOMContentLoaded事件监听器中添加：
+const clearInputBtn = document.getElementById('clearInput');
+const wordInput = document.getElementById('wordInput');
+
+wordInput.addEventListener('input', () => {
+    clearInputBtn.style.display = wordInput.value ? 'block' : 'none';
+});
+
+clearInputBtn.addEventListener('click', () => {
+    wordInput.value = '';
+    clearInputBtn.style.display = 'none';
+    wordDetailsDiv.innerHTML = '';
+});

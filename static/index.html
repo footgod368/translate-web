@@ -13,11 +13,19 @@
   <h1>Word Information</h1>
   <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
     <label for="wordInput" style="font-size: 16px; color: #333;">单词：</label>
-    <input type="text" id="wordInput" name="wordInput"
-      style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; flex-grow: 1;" />
+    <div style="position: relative; flex-grow: 1; margin-right: 10px;">
+        <input type="text" id="wordInput" name="wordInput" 
+            style="padding: 8px 32px 8px 8px; border: 1px solid #ddd; border-radius: 4px; 
+                width: 100%; box-sizing: border-box;"/>
+        <button id="clearInput" 
+            style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); 
+                background: none; border: none; cursor: pointer; display: none; color: #999;">
+            ×
+        </button>
+    </div>
     <button id="lookupButton"
-      style="padding: 8px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">查询</button>
-  </div>
+        style="padding: 8px 20px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">查询</button>
+</div>
 
   <div id="wordDetails" style="margin-top: 20px;"></div>
 
