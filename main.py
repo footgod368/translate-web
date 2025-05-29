@@ -1,32 +1,70 @@
 import os
 from flask import Flask, send_file, jsonify, request
+import logging
+from logging.handlers import RotatingFileHandler
 from src.translate import Word
 from src.auto_complete import auto_complete
 
-app = Flask(__name__, static_folder='static') 
+app = Flask(__name__, static_folder="static")
 
-@app.route("/") 
+
+def load_words():
+    try:
+        with open("static/words", "r") as file:
+            words = [line.strip().lower() for line in file if line.strip()]
+            app.logger.info(f"成功加载 {len(words)} 个单词")
+            return words  # 添加返回值
+    except Exception as e:
+        app.logger.error(f"单词文件加载失败: {str(e)}")
+        return []
+
+
+app.config["all_eng_words"] = load_words()  # 在app.run前加载
+app.config["enable_autocomplete"] = True
+
+@app.route("/")
 def index():
-    return send_file('static/index.html')
+    return send_file("static/index.html")
+
 
 @app.route("/test")
 def test():
     return "Hello World"
-    
+
+
 @app.route("/translate")
-def translate():    
-    word = request.args.get('text', '')
+def translate():
+    word = request.args.get("text", "")
     word_instance = Word(word)
     return jsonify(word_instance.result())
 
-@app.route('/autocomplete')
+
+@app.route("/autocomplete")
 def autocomplete():
-    prefix = request.args.get('prefix', '').lower()
-    suggestions = auto_complete(prefix)
+    prefix = request.args.get("prefix", "").lower()
+    suggestions = auto_complete(prefix, app.config["all_eng_words"])
     return jsonify(suggestions)
 
+
+def init_logging():
+    handler = RotatingFileHandler(
+        filename="app.log",
+        maxBytes=1024 * 1024 * 5,  # 5MB
+        backupCount=3,
+        encoding="utf-8",
+    )
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    handler.setFormatter(formatter)
+    app.logger.addHandler(handler)
+    app.logger.setLevel(logging.INFO)
+
+
 def main():
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    init_logging()
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
 
 if __name__ == "__main__":
     main()
