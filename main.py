@@ -4,13 +4,14 @@ import logging
 from logging.handlers import RotatingFileHandler
 from src.translate import Word
 from src.auto_complete import auto_complete
+from src.database import init_db, log_query, get_today_query_count
 
 app = Flask(__name__, static_folder="static")
 
 
 def load_words():
     try:
-        with open(app.root_path +"/static/words", "r") as file:
+        with open(app.root_path + "/static/words", "r") as file:
             words = [line.strip().lower() for line in file if line.strip()]
             app.logger.info(f"成功加载 {len(words)} 个单词")
             return words  # 添加返回值
@@ -21,6 +22,8 @@ def load_words():
 
 app.config["all_eng_words"] = load_words()  # 在app.run前加载
 app.config["enable_autocomplete"] = True
+init_db()
+
 
 @app.route("/")
 def index():
@@ -35,6 +38,7 @@ def test():
 @app.route("/translate")
 def translate():
     word = request.args.get("text", "")
+    log_query(word, request.remote_addr, request.user_agent.string)
     word_instance = Word(word)
     return jsonify(word_instance.result())
 
@@ -44,6 +48,15 @@ def autocomplete():
     prefix = request.args.get("prefix", "").lower()
     suggestions = auto_complete(prefix, app.config["all_eng_words"])
     return jsonify(suggestions)
+
+
+@app.route("/ducksay")
+def ducksay():
+    return jsonify(
+        {
+            "message": f"小鸭今天学习了 {get_today_query_count()} 个单词",
+        }
+    )
 
 
 def init_logging():

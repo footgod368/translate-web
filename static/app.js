@@ -93,10 +93,20 @@ function wrapWithParentheses(text) {
 }
 
 // 在DOMContentLoaded事件监听器中添加：
-document.getElementById('logoIcon').addEventListener('click', (e) => {
+document.getElementById('logoIcon').addEventListener('click', async (e) => {
     e.stopPropagation();
     const bubble = document.getElementById('chatBubble');
-    bubble.style.display = bubble.style.display === 'none' ? 'block' : 'none';
+    
+    try {
+        const response = await fetch('/ducksay');
+        const data = await response.json();
+        bubble.textContent = data.message;  // 动态设置内容
+        bubble.style.display = 'block';
+    } catch (error) {
+        console.error('获取鸭子消息失败:', error);
+        bubble.textContent = '连接服务器失败';
+        bubble.style.display = 'block';
+    }
 });
 
 document.addEventListener('click', (e) => {
