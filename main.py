@@ -54,7 +54,7 @@ def autocomplete():
 @app.route("/ducksay")
 def ducksay():
     count = get_today_query_count(app.config["database_file"])
-    message = f"今天小鸭学习了 {count} 个单词" if count > 0 else "嘎嘎"
+    message = f"今天小鸭学习了 {count} 个单词" if count > 0 else "嘎嘎，小鸭今天什么都没学"
     return jsonify(
         {
             "message": message,
