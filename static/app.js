@@ -167,6 +167,16 @@ wordInput.addEventListener('input', async () => {
     }, 300);
 });
 
+// 修改后的回车键监听
+wordInput.addEventListener('keydown', (e) => {
+    if (e.keyCode === 13) { // Enter key
+        e.preventDefault();
+        clearTimeout(timeoutId);  // 新增：清除自动完成定时器
+        suggestionsDiv.style.display = 'none';
+        lookupButton.click();
+    }
+});
+
 document.addEventListener('click', (e) => {
     if (!searchWrapper.contains(e.target)) {
         suggestionsDiv.style.display = 'none';
