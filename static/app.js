@@ -6,70 +6,115 @@ document.addEventListener('DOMContentLoaded', () => {
     lookupButton.addEventListener("click", async () => {
         wordDetailsDiv.innerHTML = "";
         const word = wordInput.value;
-        const response = await fetch(`/translate?text=${encodeURIComponent(word)}`);
-        const data = await response.json();
+        const transResponse = await fetch(`/translate?text=${encodeURIComponent(word)}`);
+        const transData = await transResponse.json();
+        renderTranslations(transData, wordDetailsDiv);
 
-        orderedKeys.forEach(key => {
-            if (data.hasOwnProperty(key)) {
-                const detailDiv = document.createElement("div");
-                detailDiv.style.marginBottom = "10px";
-                const keyStrong = document.createElement('strong');
-                keyStrong.textContent = `${keyToChinese[key]}: `;
-                detailDiv.appendChild(keyStrong);
-
-                if (key === 'eg_sentences') {
-                    const ul = document.createElement('ul');
-                    data[key].forEach(item => {
-                        const li = document.createElement("li");
-
-                        const engSpan = document.createElement('span');
-                        engSpan.innerHTML = formatTextWithLineBreaks(item.eng) + '<br>';
-                        engSpan.style.fontStyle = 'italic';
-
-                        const chnSpan = document.createElement('span');
-                        chnSpan.innerHTML = formatTextWithLineBreaks(item.translation);
-                        chnSpan.style.color = '#666';
-
-                        li.appendChild(engSpan);
-                        chnSpan.style.marginTop = '4px';
-                        li.appendChild(chnSpan);
-                        ul.appendChild(li);
-                    });
-                    detailDiv.appendChild(ul);
-                } else if (key === 'etymologies') {
-                    const ul = document.createElement('ul');
-                    data[key].forEach(item => {
-                        if (!item.value && !item.desc) return;
-
-                        const li = document.createElement("li");
-                        let content = '';
-
-                        if (item.value) {
-                            content += `<div style="font-weight:600;color:#2d3748;">${formatTextWithLineBreaks(item.value)}</div>`;
-                        }
-                        if (item.desc) {
-                            content += formatTextWithLineBreaks(item.desc);
-                        }
-
-                        li.innerHTML = content;
-                        ul.appendChild(li);
-                    });
-                    detailDiv.appendChild(ul);
-                } else {
-                    let content = data[key];
-                    if (typeof content === 'string') {
-                        content = formatTextWithLineBreaks(content);
-                    }
-                    if (key === "usphone" || key === "ukphone") {
-                        content = wrapWithParentheses(content);
-                    }
-                    detailDiv.innerHTML += content;
-                }
-                wordDetailsDiv.appendChild(detailDiv);
-            }
-        });
+        // 创建同近义词加载占位
+        const synonymLoader = document.createElement('div');
+        synonymLoader.innerHTML = `
+            <div class="loading-container">
+                <h3>同近义词辨析</h3>
+                <div class="loader"></div>
+            </div>
+        `;
+        wordDetailsDiv.appendChild(synonymLoader);
+        
+        // 异步获取同近义词数据
+        const synonymsPromise = fetch(`/synonyms?word=${encodeURIComponent(word)}`)
+            .then(response => response.json())
+            .then(data => {
+                synonymLoader.remove();
+                renderSynonyms(data, wordDetailsDiv);
+            })
+            .catch(error => {
+                synonymLoader.innerHTML = '<div class="error">同近义词加载失败</div>';
+            });
     });
 });
+
+async function renderSynonyms(synonymsData, container) {
+    await window.markedLoaded;
+    
+    const rawContent = synonymsData["synonyms"] || '';
+
+    try {
+        const synonymDiv = document.createElement("div");
+        synonymDiv.innerHTML = marked.parse(rawContent);
+        synonymDiv.classList.add('markdown-body');
+        
+        const title = document.createElement('h3');
+        title.textContent = '同近义词辨析';
+        title.classList.add('synonym-title');
+        
+        container.appendChild(title);
+        container.appendChild(synonymDiv);
+    } catch (e) {
+        console.error('Markdown解析失败：', e);
+    }
+}
+
+function renderTranslations(transData, container) {
+    orderedKeys.forEach(key => {
+        if (transData.hasOwnProperty(key)) {
+            const detailDiv = document.createElement("div");
+            detailDiv.style.marginBottom = "10px";
+            const keyStrong = document.createElement('strong');
+            keyStrong.textContent = `${keyToChinese[key]}: `;
+            detailDiv.appendChild(keyStrong);
+
+            if (key === 'eg_sentences') {
+                const ul = document.createElement('ul');
+                transData[key].forEach(item => {
+                    const li = document.createElement("li");
+
+                    const engSpan = document.createElement('span');
+                    engSpan.innerHTML = formatTextWithLineBreaks(item.eng) + '<br>';
+                    engSpan.style.fontStyle = 'italic';
+
+                    const chnSpan = document.createElement('span');
+                    chnSpan.innerHTML = formatTextWithLineBreaks(item.translation);
+                    chnSpan.style.color = '#666';
+
+                    li.appendChild(engSpan);
+                    chnSpan.style.marginTop = '4px';
+                    li.appendChild(chnSpan);
+                    ul.appendChild(li);
+                });
+                detailDiv.appendChild(ul);
+            } else if (key === 'etymologies') {
+                const ul = document.createElement('ul');
+                transData[key].forEach(item => {
+                    if (!item.value && !item.desc) return;
+
+                    const li = document.createElement("li");
+                    let content = '';
+
+                    if (item.value) {
+                        content += `<div style="font-weight:600;color:#2d3748;">${formatTextWithLineBreaks(item.value)}</div>`;
+                    }
+                    if (item.desc) {
+                        content += formatTextWithLineBreaks(item.desc);
+                    }
+
+                    li.innerHTML = content;
+                    ul.appendChild(li);
+                });
+                detailDiv.appendChild(ul);
+            } else {
+                let content = transData[key];
+                if (typeof content === 'string') {
+                    content = formatTextWithLineBreaks(content);
+                }
+                if (key === "usphone" || key === "ukphone") {
+                    content = wrapWithParentheses(content);
+                }
+                detailDiv.innerHTML += content;
+            }
+            container.appendChild(detailDiv);
+        }
+    });
+}
 
 const keyToChinese = {
     'word': '单词',

@@ -5,6 +5,7 @@ from logging.handlers import RotatingFileHandler
 from src.translate import Word
 from src.auto_complete import auto_complete
 from src.database import init_db, log_query, get_today_query_count
+from src.gpt import get_chat_response
 
 app = Flask(__name__, static_folder="static")
 
@@ -60,6 +61,25 @@ def ducksay():
             "message": message,
         }
     )
+
+
+@app.route('/synonyms')
+def synonyms():
+    word = request.args.get('word', '')
+    system_prompt = (
+        "你是一个专业的英语老师，你需要帮用户分析单词的同近义词。"
+    )
+    user_prompt = (
+        f"请用中文详细分析单词{word}的同近义词，每个同近义词包含：\n"
+        "1. 核心含义（不超过15字）\n"
+        "2. 典型例句（中英对照）\n"
+        "3. 与原词的主要差异\n"
+        "格式要求：使用Markdown无序列表和代码块排版\n"
+        "注意排除原词本身\n"
+    )
+    gpt_response = get_chat_response(system_prompt, user_prompt)
+    app.logger.debug(f"GPT响应: {gpt_response}")
+    return jsonify({'synonyms': gpt_response})
 
 
 def init_logging():
